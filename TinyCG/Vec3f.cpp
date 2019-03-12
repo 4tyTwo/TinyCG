@@ -1,4 +1,4 @@
-#include "geometry.h"
+#include "Vec3f.h"
 
 Vec3f::Vec3f() {}
 
@@ -30,11 +30,13 @@ float Vec3f::length() const
 	return sqrt(sum);
 }
 
-void Vec3f::normalize()
+Vec3f Vec3f::normalize() const
 {
 	float len = length();
+	float rgb_new[3];
 	for (int i = 0; i < size(); ++i)
-		rgb[i] /= len;
+		rgb_new[i] = rgb[i] / len;
+	return Vec3f(rgb_new[0], rgb_new[1], rgb_new[2]);
 }
 
 float Vec3f::operator[] (const int i) const

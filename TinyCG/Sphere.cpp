@@ -1,6 +1,6 @@
 #include "geometry.h"
 
-Sphere::Sphere(const Vec3f& center, float radius) : center_(center), radius_(radius) {}
+Sphere::Sphere(const Vec3f& center, float radius, const Material& material) : center_(center), radius_(radius), material_(material) {}
 
 bool Sphere::rayIntersect(const Vec3f& origin, const Vec3f& direction, float& t0) const
 {
@@ -18,10 +18,4 @@ bool Sphere::rayIntersect(const Vec3f& origin, const Vec3f& direction, float& t0
 			return false;
 	}
 	return true;
-	
-
-	/*float dist = distanceToLine(origin, direction);
-	if (dist > radius_)
-		return false;
-	return true;*/
 }
