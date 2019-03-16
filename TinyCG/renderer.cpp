@@ -4,6 +4,7 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <ctime>
 #include <algorithm>
 #include "geometry.h"
 #include "Light.h"
@@ -56,6 +57,7 @@ void saveToFile(string filename, int w, int h, const vector<Vec3f>& buffer)
 
 void render(const vector<Sphere>& spheres, const vector<Light>& lights)
 {
+	clock_t begin = clock();
 	const Vec3f camera_position(0, 0, 0);
 	const float fov = M_PI/2;
     const int width = 1024;
@@ -69,14 +71,20 @@ void render(const vector<Sphere>& spheres, const vector<Light>& lights)
 			Vec3f dir = Vec3f(x, y, -1).normalize();
 			framebuffer[j + i * width] = castRay(camera_position, dir, spheres, lights);
 		}
-	saveToFile("res\\out.ppm", width, height, framebuffer);	
+	clock_t endOfRender = clock();
+	float compTime = double(endOfRender - begin) / CLOCKS_PER_SEC;
+	cout << "Computation time: " << compTime << endl;
+	saveToFile("res\\out.ppm", width, height, framebuffer);
+	clock_t endOfSave = clock();
+	float saveTime = double(endOfSave - endOfRender) / CLOCKS_PER_SEC;
+	cout << "Saving time: " << saveTime << endl;
 }
 
 int main()
 {
 	vector<Sphere> spheres;
-	Material bronze(Vec3f(205, 127, 50).normalize());
-	Material dark_wood(Vec3f(133, 94, 66).normalize());
+	Material bronze(Vec3f(205, 127, 50).normalize(), Vec2f(0.6, 0.3), 50);
+	Material dark_wood(Vec3f(133, 94, 66).normalize(), Vec2f(0.9, 0.1), 10);
 	spheres.push_back(Sphere(Vec3f(-1, -1.5, -12), 2, dark_wood));
 	spheres.push_back(Sphere(Vec3f(-3, 0, -16), 2, bronze));
 	vector<Light> lights;
