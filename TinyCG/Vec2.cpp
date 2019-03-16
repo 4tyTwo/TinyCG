@@ -1,32 +1,33 @@
-#include "Vec3f.h"
+#include "Vec2f.h"
 
-Vec3f::Vec3f() {}
+Vec2f::Vec2f() {}
 
-Vec3f::Vec3f(float x, float y, float z)
+Vec2f::Vec2f(float x, float y)
 {
 	data[0] = x;
 	data[1] = y;
-	data[2] = z;
 }
 
-Vec3f::Vec3f(const float vec[])
+Vec2f::Vec2f(const float vec[])
 {
+	if (sizeof(vec) != sizeof(data))
+		throw std::invalid_argument("Invalid array size");
 	for (size_t i = 0; i < size_; ++i)
 		data[i] = vec[i];
 }
 
-Vec3f::Vec3f(const Vec3f& other)
+Vec2f::Vec2f(const Vec2f& other)
 {
 	for (size_t i = 0; i < size(); ++i)
 		data[i] = other[i];
 }
 
-size_t Vec3f::size() const
+size_t Vec2f::size() const
 {
 	return size_;
 }
 
-float Vec3f::length() const
+float Vec2f::length() const
 {
 	// TODO: overflow checks
 	float sum = 0;
@@ -35,37 +36,37 @@ float Vec3f::length() const
 	return sqrt(sum);
 }
 
-Vec3f Vec3f::normalize() const
+Vec2f Vec2f::normalize() const
 {
 	float len = length();
 	float data_new[size_];
 	for (int i = 0; i < size_; ++i)
 		data_new[i] = data[i] / len;
-	return Vec3f(data_new);
+	return Vec2f(data_new);
 }
 
-float Vec3f::operator[] (const int i) const
+float Vec2f::operator[] (const int i) const
 {
 	return data[i];
 }
 
-Vec3f Vec3f::operator+(const Vec3f& other) const
+Vec2f Vec2f::operator+(const Vec2f& other) const
 {
 	float data_new[size_];
 	for (size_t i = 0; i < size_; ++i)
 		data_new[i] = data[i] + other.data[i];
-	return Vec3f(data_new);
+	return Vec2f(data_new);
 }
 
-Vec3f Vec3f::operator-(const Vec3f& other) const
+Vec2f Vec2f::operator-(const Vec2f& other) const
 {
 	float data_new[size_];
 	for (size_t i = 0; i < size_; ++i)
 		data_new[i] = data[i] - other.data[i];
-	return Vec3f(data_new);
+	return Vec2f(data_new);
 }
 
-float Vec3f::operator*(const Vec3f& other) const
+float Vec2f::operator*(const Vec2f& other) const
 {
 	float sum = 0;
 	for (size_t i = 0; i < size_; ++i)
@@ -73,10 +74,10 @@ float Vec3f::operator*(const Vec3f& other) const
 	return sum;
 }
 
-Vec3f Vec3f::operator*(const float multiplicator) const
+Vec2f Vec2f::operator*(const float multiplicator) const
 {
 	float data_new[size_];
 	for (size_t i = 0; i < size_; ++i)
 		data_new[i] = data[i] * multiplicator;
-	return Vec3f(data_new);
+	return Vec2f(data_new);
 }
