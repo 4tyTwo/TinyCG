@@ -1,5 +1,5 @@
 #pragma once
-#include<cmath>
+#include <cmath>
 #include <cfloat>
 #include <stdexcept>
 
@@ -18,6 +18,7 @@ public:
 	Vec3f operator-(const Vec3f& other) const;
 	float operator*(const Vec3f& other) const;
 	Vec3f operator*(const float multiplicator) const;
+	Vec3f operator-() const;
 private:
 	static const size_t size_ = 3;
 	float data[size_];

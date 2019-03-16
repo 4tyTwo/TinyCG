@@ -1,5 +1,5 @@
 #pragma once
-#include<cmath>
+#include <cmath>
 #include <cfloat>
 #include <stdexcept>
 

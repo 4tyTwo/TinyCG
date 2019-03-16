@@ -1,5 +1,4 @@
 #pragma once
-#include "Vec3f.h"
 #include "Material.h"
 class Sphere
 {

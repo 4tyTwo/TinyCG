@@ -4,6 +4,7 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <string>
 #include <ctime>
 #include <algorithm>
 #include "geometry.h"
@@ -11,6 +12,16 @@
 
 using namespace std;
 
+
+Vec3f operator* (float multiplicator, const Vec3f& vec)
+{
+	return vec * multiplicator;
+}
+
+Vec3f reflect(const Vec3f& incident, const Vec3f& normal)
+{
+	return incident - 2.f * normal * (incident * normal);
+}
 
 bool sceneIntersect(const Vec3f& orig, const Vec3f& dir, const vector<Sphere>& spheres, Vec3f& hit, Vec3f& N, Material& material)
 {
@@ -35,23 +46,30 @@ Vec3f castRay(const Vec3f &orig, const Vec3f &dir, const vector<Sphere>& spheres
 	Material material;
 	if (!sceneIntersect(orig, dir, spheres, point, N, material))
 		return Vec3f(0.2f, 0.7f, 0.8f);
-	float light_intensity = 0.f;
+	float light_intensity = 0.f, specular_light_intensity = 0.f;
 	for (size_t i = 0; i < lights.size(); ++i)
 	{
 		Vec3f light_dir = (lights[i].position() - point).normalize();
 		light_intensity += lights[i].intensity() * std::max(0.f, light_dir*N);
+		specular_light_intensity += powf(max(0.f, -reflect(-light_dir, N) * dir), material.specular_exponent()) * lights[i].intensity();
 	}
-	return material.diffusionalColor() * light_intensity;
+	return material.diffusionalColor() * light_intensity * material.albedo()[0] + Vec3f(1, 1, 1) * specular_light_intensity * material.albedo()[1];
 }
 
-void saveToFile(string filename, int w, int h, const vector<Vec3f>& buffer)
+void saveToFile(string filename, int w, int h, vector<Vec3f>& buffer)
 {
 	ofstream ofs;
 	ofs.open(filename, ios::binary);
 	ofs << "P6" << endl << w << " " << h << endl << 255 << endl;
-	for (size_t i = 0; i < h * w; ++i)
+	for (int i = 0; i < h * w; ++i)
+	{
+		Vec3f &c = buffer[i];
+		float max = std::max(c[0], std::max(c[1], c[2]));
+		if (max > 1)
+			c = c * (1. / max);
 		for (size_t j = 0; j < buffer[0].size(); ++j)
-			ofs << (char)(255 * max(0.f, min(1.f, buffer[i][j])));
+			ofs << (char)(255 * std::max(0.f, min(1.f, buffer[i][j])));
+	}
 	ofs.close();
 }
 
@@ -72,23 +90,23 @@ void render(const vector<Sphere>& spheres, const vector<Light>& lights)
 			framebuffer[j + i * width] = castRay(camera_position, dir, spheres, lights);
 		}
 	clock_t endOfRender = clock();
-	float compTime = double(endOfRender - begin) / CLOCKS_PER_SEC;
+	double compTime = double(endOfRender - begin) / CLOCKS_PER_SEC;
 	cout << "Computation time: " << compTime << endl;
-	saveToFile("res\\out.ppm", width, height, framebuffer);
+	saveToFile("res\\out" + to_string(time(nullptr)) + ".ppm", width, height, framebuffer);
 	clock_t endOfSave = clock();
-	float saveTime = double(endOfSave - endOfRender) / CLOCKS_PER_SEC;
+	double saveTime = double(endOfSave - endOfRender) / CLOCKS_PER_SEC;
 	cout << "Saving time: " << saveTime << endl;
 }
 
 int main()
 {
 	vector<Sphere> spheres;
-	Material bronze(Vec3f(205, 127, 50).normalize(), Vec2f(0.6, 0.3), 50);
-	Material dark_wood(Vec3f(133, 94, 66).normalize(), Vec2f(0.9, 0.1), 10);
+	Material bronze(Vec3f(205, 127, 50).normalize(), Vec2f(0.7f, 0.6f), 30);
+	Material dark_wood(Vec3f(133, 94, 66).normalize(), Vec2f(0.5f, 0.1f), 10);
 	spheres.push_back(Sphere(Vec3f(-1, -1.5, -12), 2, dark_wood));
 	spheres.push_back(Sphere(Vec3f(-3, 0, -16), 2, bronze));
 	vector<Light> lights;
-	lights.push_back(Light(Vec3f(-20, 20, 20), 2));
+	lights.push_back(Light(Vec3f(-20, 20, 20), 1.3));
 	lights.push_back(Light(Vec3f(20, -20, -20), 2));
 	render(spheres, lights);
 	system("PAUSE");

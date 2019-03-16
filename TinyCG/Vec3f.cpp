@@ -80,3 +80,8 @@ Vec3f Vec3f::operator*(const float multiplicator) const
 		data_new[i] = data[i] * multiplicator;
 	return Vec3f(data_new);
 }
+
+Vec3f Vec3f::operator-() const
+{
+	return (*this * -1);
+}
